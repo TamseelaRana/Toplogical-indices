@@ -1,61 +1,33 @@
-# Toplogical-indices
+# Normalized Triangular MFs Code 
+!pip install -q scikit-fuzzy
 import numpy as np
+import pandas as pd
+import skfuzzy as fuzz #Fixed typo here
 
-n = 12
-X = np.array([3,4,4,5,8,7,6,5,3,5,3,5])
-Y = np.array([4,5,4,8,8,8,8,6,5,5,6,7])
-Z = np.array([2,3,1,1,1,1,2,2,2,6,1,2])
+# Original M1 values
+M1 = np.array([232,710,3.7717,1526,33.0547,11.0869,3.8411,6.0755,19.6367,2946,55.903,9798])
 
-M1 = np.zeros(n)
-M2 = np.zeros(n)
-H = np.zeros(n)
-F = np.zeros(n)
-SSG = np.zeros(n)
-ABC = np.zeros(n)
-RI = np.zeros(n)
-SC = np.zeros(n)
-GA = np.zeros(n)
-HZI = np.zeros(n)
-RezG2 = np.zeros(n)
-RezG3 = np.zeros(n)
+# Normalize M1 for consistency (optional but recommended for fuzzification)
+M1_norm = (M1 - M1.min()) / (M1.max() - M1.min())
 
-for i in range(n):
-    M1[i] = Z[i] * (X[i] + Y[i])
-    M2[i] = Z[i] * (X[i] * Y[i])
-    H[i] = Z[i] * (2 / (X[i] + Y[i]))
-    F[i] = Z[i] * (X[i]**2 + Y[i]**2)
-    SSG[i] = Z[i] * (np.sqrt(X[i] * Y[i] / (X[i] + Y[i])))
-    ABC[i] = Z[i] * (np.sqrt((X[i] + Y[i] - 2) / (X[i] * Y[i])))
-    RI[i] = Z[i] * (np.sqrt(1 / (X[i] * Y[i])))
-    SC[i] = Z[i] * (np.sqrt(1 / (X[i] + Y[i])))
-    GA[i] = Z[i] * (2 * np.sqrt(X[i] * Y[i]) / (X[i] + Y[i]))
-    HZI[i] = Z[i] * (X[i] + Y[i])**2
-    RezG2[i] = Z[i] * (X[i] * Y[i] / (X[i] + Y[i]))
-    RezG3[i] = Z[i] * (X[i] * Y[i] * (X[i] + Y[i]))
+# Calculate min, mean, max of normalized M1
+x_min = M1_norm.min()
+x_max = M1_norm.max()
+x_mid = M1_norm.mean()
 
-M11 = np.sum(M1)
-M22 = np.sum(M2)
-H1 = np.sum(H)
-F1 = np.sum(F)
-SSG1 = np.sum(SSG)
-ABC1 = np.sum(ABC)
-RI1 = np.sum(RI)
-SC1 = np.sum(SC)
-GA1 = np.sum(GA)
-HZI1 = np.sum(HZI)
-RezG22 = np.sum(RezG2)
-RezG33 = np.sum(RezG3)
+# Compute fuzzy memberships using triangular functions
+low_mf = fuzz.trimf(M1_norm, [x_min, x_min, x_mid])
+med_mf = fuzz.trimf(M1_norm, [x_min, x_mid, x_max])
+high_mf = fuzz.trimf(M1_norm, [x_mid, x_max, x_max])
 
-print("M11 =", M11)
-print("M22 =", M22)
-print("H1 =", H1)
-print("F1 =", F1)
-print("SSG1 =", SSG1)
-print("ABC1 =", ABC1)
-print("RI1 =", RI1)
-print("SC1 =", SC1)
-print("GA1 =", GA1)
-print("HZI1 =", HZI1)
-print("RezG22 =", RezG22)
-print("RezG33 =", RezG33)
+# Prepare DataFrame for output
+df = pd.DataFrame({
+    'M1_Original': M1,
+    'M1_Normalized': M1_norm.round(4),
+    'Low_Membership': low_mf.round(4),
+    'Medium_Membership': med_mf.round(4),
+    'High_Membership': high_mf.round(4)
+})
 
+# Display the table
+print(df.to_string(index=False))
