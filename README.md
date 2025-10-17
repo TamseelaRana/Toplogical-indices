@@ -50,9 +50,7 @@ For m_2^norm  = 0.2313 :
 
  Step 5: Final Output Table
 
-Table 4: The normalized M_1   values and compute their corresponding Low, Medium and High membership function values.
-
-
+The normalized M_1   values and compute their corresponding Low, Medium and High membership function values.
 m_i m_i^norm  μ_Low (m_i^norm)	μ_Med (m_i^norm)	μ_High (m_i^norm)
 312 0.4552	0.0963	              0.9037	           0.0000
 252	0.2313	0.5407	              0.4593	           0.0000
